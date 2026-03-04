@@ -281,9 +281,8 @@ nav.visible{display:flex;}
         <div><div class="tstat-val" id="t-streak">0</div><div class="tstat-label">STREAK</div></div>
       </div>
       <div class="typing-timer" id="t-timer">15</div>
-      <div class="words-box" id="words-box"><div class="words-inner" id="words-inner"></div></div>
-      <input class="hidden-input" id="t-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <div class="type-prompt" id="type-prompt">Click here and start typing...</div>
+      <div class="words-box" id="words-box" tabindex="0" style="outline:none;"><div class="words-inner" id="words-inner"></div></div>
+      <div class="type-prompt" id="type-prompt" style="cursor:pointer;">▶ Click the box above then start typing</div>
       <button class="t-restart" id="t-restart-btn">↺ RESTART</button>
     </div>
     <div class="t-result" id="t-result">
@@ -332,12 +331,13 @@ nav.visible{display:flex;}
     <div class="score-bar"><div class="score-item"><span id="sn-score">0</span>SCORE</div><div class="score-item"><span id="sn-best">0</span>BEST</div></div>
     <div class="game-status" id="sn-status">Press START to begin</div>
     <canvas id="snake-canvas" width="400" height="400"></canvas>
+    <button class="game-btn" id="sn-start" style="margin-top:1rem;">▶ START / RESTART</button>
+    <div style="height:2rem;"></div>
     <div class="dpad">
       <div></div><div class="db" id="db-up">▲</div><div></div>
       <div class="db" id="db-left">◀</div><div></div><div class="db" id="db-right">▶</div>
       <div></div><div class="db" id="db-down">▼</div><div></div>
     </div>
-    <button class="game-btn" id="sn-start">▶ START / RESTART</button>
   </div>
 </div>
 
@@ -442,9 +442,10 @@ const CODES={
   'nadir67':{msg:'Hello nadir bhai',emoji:'🤝'},
   'ibi69':{msg:'Welcome developer',emoji:'💻'},
   'sadaf123':{msg:'hello mama',emoji:'❤️'},
-  'zoha87':{msg:'zoha Pagal jaao Yahan say',emoji:'😤'},
-  'emaan8':{msg:'Hello emaan',emoji:'👋'},
-  'zainab7':{msg:'Zainab jaa Kay zoha ko maar Kay aao pehlay phir enter Karna',emoji:'😂'}
+  'zoha13':{msg:'zoha Pagal jaao Yahan say',emoji:'😤'},
+  'emaan8':{msg:'Emaan alaya ko tang na karo',emoji:'🙄'},
+  'zainab7':{msg:'Zainab jaa Kay zoha ko maar Kay aao pehlay phir enter Karna',emoji:'😂'},
+  'alaya6':{msg:'hello alaya how are you',emoji:'🌸'}
 };
 
 function doLogin(){
@@ -490,8 +491,8 @@ document.getElementById('mode-30').addEventListener('click',function(){setTM(30,
 document.getElementById('mode-60').addEventListener('click',function(){setTM(60,this);});
 document.getElementById('t-restart-btn').addEventListener('click',restartTyping);
 document.getElementById('t-again-btn').addEventListener('click',restartTyping);
-document.getElementById('words-box').addEventListener('click',function(){document.getElementById('t-input').focus();});
-document.getElementById('type-prompt').addEventListener('click',function(){document.getElementById('t-input').focus();});
+document.getElementById('words-box').addEventListener('click',function(){this.focus();});
+document.getElementById('type-prompt').addEventListener('click',function(){document.getElementById('words-box').focus();});
 function setTM(s,btn){tMode=s;document.querySelectorAll('#pg-typing .ctrl-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');restartTyping();}
 function buildWords(){
   tWords=rw(150);const c=document.getElementById('words-inner');c.innerHTML='';c.style.top='0px';
@@ -505,8 +506,8 @@ function restartTyping(){
   document.getElementById('t-streak').textContent='0';
   document.getElementById('t-result').classList.remove('show');
   document.getElementById('typing-active').style.display='flex';
-  document.getElementById('t-input').value='';
   buildWords();
+  setTimeout(()=>document.getElementById('words-box').focus(),80);
 }
 function calcWPM(){const e=tMode-tTimer;return e<=0?0:Math.round((tOk/5)/(e/60));}
 function setCur(){
@@ -514,7 +515,8 @@ function setCur(){
   const ws=document.querySelectorAll('#words-inner .word');
   if(ws[tWI]){const cs=ws[tWI].querySelectorAll('.ch');if(cs[tCI])cs[tCI].classList.add('cur');else if(cs.length)cs[cs.length-1].classList.add('cur');const top=ws[tWI].offsetTop;if(top>50)document.getElementById('words-inner').style.top=(-top+12)+'px';}
 }
-document.getElementById('t-input').addEventListener('keydown',function(e){
+document.getElementById('words-box').addEventListener('keydown',function(e){
+  if(e.key==='Tab'){e.preventDefault();return;}
   if(tDone)return;
   if(!tStarted&&e.key.length===1){tStarted=true;tInt=setInterval(()=>{tTimer--;document.getElementById('t-timer').textContent=tTimer;document.getElementById('t-wpm').textContent=calcWPM();if(tTimer<=0){clearInterval(tInt);endTyping();}},1000);}
   if(e.key===' '){e.preventDefault();if(tWI<tWords.length-1){tWI++;tCI=0;this.value='';setCur();beep('tap');}return;}
@@ -579,7 +581,7 @@ let snSn=[],snD={x:1,y:0},snND={x:1,y:0},snF={x:5,y:5},snRun=false,snIn=null,snS
 function idleSnake(){snX.fillStyle='#010610';snX.fillRect(0,0,400,400);snX.strokeStyle='rgba(26,79,255,0.06)';for(let i=0;i<SC;i++){snX.beginPath();snX.moveTo(i*SZ,0);snX.lineTo(i*SZ,400);snX.stroke();}for(let i=0;i<SR;i++){snX.beginPath();snX.moveTo(0,i*SZ);snX.lineTo(400,i*SZ);snX.stroke();}snX.fillStyle='rgba(26,79,255,0.4)';snX.font='bold 16px Orbitron,sans-serif';snX.textAlign='center';snX.fillText('PRESS START',200,200);}
 function drawSN(){snX.fillStyle='#010610';snX.fillRect(0,0,400,400);snX.strokeStyle='rgba(26,79,255,0.06)';for(let i=0;i<SC;i++){snX.beginPath();snX.moveTo(i*SZ,0);snX.lineTo(i*SZ,400);snX.stroke();}for(let i=0;i<SR;i++){snX.beginPath();snX.moveTo(0,i*SZ);snX.lineTo(400,i*SZ);snX.stroke();}snX.fillStyle='#f87171';snX.shadowColor='#f87171';snX.shadowBlur=12;snX.fillRect(snF.x*SZ+2,snF.y*SZ+2,SZ-4,SZ-4);snX.shadowBlur=0;snSn.forEach((s,i)=>{const r=i/snSn.length;snX.fillStyle=`rgba(${40+Math.round(r*20)},${120+Math.round(r*80)},255,${1-r*.4})`;snX.shadowColor='rgba(68,136,255,0.5)';snX.shadowBlur=i===0?12:3;snX.fillRect(s.x*SZ+1,s.y*SZ+1,SZ-2,SZ-2);});snX.shadowBlur=0;}
 function placeF(){let x,y;do{x=Math.floor(Math.random()*SC);y=Math.floor(Math.random()*SR);}while(snSn.some(s=>s.x===x&&s.y===y));snF={x,y};}
-function startSN(){clearInterval(snIn);snSn=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];snD={x:1,y:0};snND={x:1,y:0};snSc=0;placeF();snRun=true;document.getElementById('sn-score').textContent=0;document.getElementById('sn-status').textContent='Running...';snIn=setInterval(()=>{if(!snRun)return;snD={...snND};const h={x:snSn[0].x+snD.x,y:snSn[0].y+snD.y};if(h.x<0||h.x>=SC||h.y<0||h.y>=SR||snSn.some(s=>s.x===h.x&&s.y===h.y)){clearInterval(snIn);snRun=false;const b=ld('sn_best',0);if(snSc>b)sv('sn_best',snSc);document.getElementById('sn-best').textContent=Math.max(snSc,b);document.getElementById('sn-status').textContent='Game over! Score: '+snSc;beep('no');drawSN();return;}snSn.unshift(h);if(h.x===snF.x&&h.y===snF.y){snSc++;document.getElementById('sn-score').textContent=snSc;placeF();beep('ok');}else snSn.pop();drawSN();},120);}
+function startSN(){clearInterval(snIn);snSn=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];snD={x:1,y:0};snND={x:1,y:0};snSc=0;placeF();snRun=true;document.getElementById('sn-score').textContent=0;document.getElementById('sn-status').textContent='Running...';snIn=setInterval(()=>{if(!snRun)return;snD={...snND};const h={x:snSn[0].x+snD.x,y:snSn[0].y+snD.y};if(h.x<0||h.x>=SC||h.y<0||h.y>=SR||snSn.some(s=>s.x===h.x&&s.y===h.y)){clearInterval(snIn);snRun=false;const b=ld('sn_best',0);if(snSc>b)sv('sn_best',snSc);document.getElementById('sn-best').textContent=Math.max(snSc,b);document.getElementById('sn-status').textContent='Game over! Score: '+snSc;beep('no');drawSN();return;}snSn.unshift(h);if(h.x===snF.x&&h.y===snF.y){snSc++;document.getElementById('sn-score').textContent=snSc;placeF();beep('ok');}else snSn.pop();drawSN();},180);}
 function stopSN(){clearInterval(snIn);snRun=false;}
 function snDir(x,y){if(snRun&&!(x===-snD.x&&y===-snD.y))snND={x,y};else if(!snRun)startSN();}
 document.getElementById('sn-start').addEventListener('click',startSN);
@@ -592,7 +594,7 @@ document.addEventListener('keydown',function(e){if(!document.getElementById('pg-
 // ══════════════════════════════════════════════════════════════
 // HANGMAN
 // ══════════════════════════════════════════════════════════════
-const HW=[{w:'javascript',h:'Programming language'},{w:'quantum',h:'Physics concept'},{w:'galaxy',h:'Space object'},{w:'python',h:'Also a snake'},{w:'keyboard',h:'You type on this'},{w:'algorithm',h:'Step-by-step process'},{w:'universe',h:'Everything in existence'},{w:'champion',h:'The winner'},{w:'gravity',h:'Keeps you grounded'},{w:'diamond',h:'Precious stone'},{w:'thunder',h:'Storm sound'},{w:'phantom',h:'Ghost-like entity'},{w:'crystal',h:'Clear mineral'},{w:'eclipse',h:'Moon blocks the sun'},{w:'volcano',h:'Fire mountain'},{w:'horizon',h:'Where sky meets earth'},{w:'compass',h:'Navigation tool'},{w:'dynasty',h:'Ruling family line'},{w:'fantasy',h:'Imaginary world'},{w:'silence',h:'Absence of sound'},{w:'velocity',h:'Speed with direction'},{w:'empire',h:'Large territory'},{w:'triumph',h:'Great victory'},{w:'oxygen',h:'You breathe this'},{w:'freedom',h:'State of liberty'},{w:'mission',h:'Important task'},{w:'nucleus',h:'Center of an atom'},{w:'climate',h:'Long-term weather'},{w:'courage',h:'Bravery'},{w:'ancient',h:'Very old'},{w:'balance',h:'Equal distribution'},{w:'captain',h:'Team leader'},{w:'element',h:'Basic chemical unit'},{w:'monster',h:'Scary creature'},{w:'network',h:'Connected systems'}];
+const HW=[{w:'javascript',h:'Programming language'},{w:'quantum',h:'Physics concept'},{w:'galaxy',h:'Space object'},{w:'python',h:'Also a snake'},{w:'keyboard',h:'You type on this'},{w:'algorithm',h:'Step-by-step process'},{w:'universe',h:'Everything in existence'},{w:'champion',h:'The winner'},{w:'gravity',h:'Keeps you grounded'},{w:'diamond',h:'Precious stone'},{w:'thunder',h:'Storm sound'},{w:'phantom',h:'Ghost-like entity'},{w:'crystal',h:'Clear mineral'},{w:'eclipse',h:'Moon blocks the sun'},{w:'volcano',h:'Fire mountain'},{w:'horizon',h:'Where sky meets earth'},{w:'compass',h:'Navigation tool'},{w:'dynasty',h:'Ruling family line'},{w:'fantasy',h:'Imaginary world'},{w:'silence',h:'Absence of sound'},{w:'velocity',h:'Speed with direction'},{w:'empire',h:'Large territory'},{w:'triumph',h:'Great victory'},{w:'oxygen',h:'You breathe this'},{w:'freedom',h:'State of liberty'},{w:'mission',h:'Important task'},{w:'nucleus',h:'Center of an atom'},{w:'climate',h:'Long-term weather'},{w:'courage',h:'Bravery'},{w:'ancient',h:'Very old'},{w:'balance',h:'Equal distribution'},{w:'captain',h:'Team leader'},{w:'element',h:'Basic chemical unit'},{w:'monster',h:'Scary creature'},{w:'network',h:'Connected systems'},{w:'trumpet',h:'Brass instrument'},{w:'dolphin',h:'Smart ocean mammal'},{w:'shelter',h:'Protection from weather'},{w:'lantern',h:'Portable light source'},{w:'pyramid',h:'Ancient structure'},{w:'journey',h:'A long trip'},{w:'battery',h:'Stores electrical energy'},{w:'scatter',h:'Spread in all directions'},{w:'villain',h:'The bad guy'},{w:'balloon',h:'Floats with helium'},{w:'cabinet',h:'Storage unit'},{w:'digital',h:'Electronic not analog'},{w:'fiction',h:'Made-up stories'},{w:'granite',h:'Type of rock'},{w:'history',h:'Study of the past'},{w:'iceberg',h:'Floating chunk of ice'},{w:'justice',h:'Fairness and law'},{w:'kitchen',h:'Room where food is made'},{w:'leopard',h:'Spotted big cat'},{w:'machine',h:'Mechanical device'},{w:'narwhal',h:'Unicorn of the sea'},{w:'octopus',h:'Eight-armed sea creature'},{w:'pattern',h:'Repeated design'},{w:'raccoon',h:'Masked woodland animal'},{w:'sparrow',h:'Small common bird'},{w:'tornado',h:'Spinning storm funnel'},{w:'warrior',h:'A fighter or soldier'},{w:'algebra',h:'Type of maths'},{w:'biology',h:'Study of living things'},{w:'emerald',h:'Green precious gem'},{w:'glacier',h:'Slowly moving ice mass'},{w:'habitat',h:'Where animals live'},{w:'jackpot',h:'Big prize win'},{w:'monarch',h:'A king or queen'},{w:'neptune',h:'Eighth planet from sun'},{w:'polygon',h:'Shape with many sides'},{w:'receipt',h:'Proof of purchase'},{w:'stadium',h:'Sports arena'},{w:'umpire',h:'Sports referee'},{w:'vibrant',h:'Bright and lively'},{w:'walrus',h:'Large tusked sea mammal'},{w:'zealous',h:'Very enthusiastic'},{w:'blanket',h:'Keeps you warm'},{w:'lanyard',h:'Cord for ID badges'},{w:'invoice',h:'Bill for services'},{w:'serpent',h:'Another word for snake'},{w:'orbital',h:'Path around a planet'},{w:'thunder',h:'Sound after lightning'},{w:'phantom',h:'Ghostly figure'}];
 let hmW='',hmG=[],hmBad=0,hmWins=0,hmLoss=0,hmSt=0;
 document.getElementById('hm-new').addEventListener('click',initHM);
 function initHM(){const e=HW[Math.floor(Math.random()*HW.length)];hmW=e.w;hmG=[];hmBad=0;for(let i=0;i<6;i++)document.getElementById('hm-p'+i).style.display='none';document.getElementById('hm-hint').textContent='Hint: '+e.h;renderHM();}
